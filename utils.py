@@ -68,3 +68,14 @@ def remove_stopwords(sentence):
         if not token.is_stop:
             stopless_sent += token.text_with_ws
     return nlp(stopless_sent)
+
+
+def filter_sentences(sent_dict_list):
+    min_tokens = 10
+    sent_dict_list = [sentence for sentence in sent_dict_list
+                      if len(sentence) > min_tokens and count_ents(sentence) != 0]
+    for sent_dict in sent_dict_list:
+        sentence = sent_dict['original_sentence']
+        if len(sentence) < min_tokens or count_ents(sentence) == 0:
+            sent_dict_list.remove(sent_dict)
+    return sent_dict_list

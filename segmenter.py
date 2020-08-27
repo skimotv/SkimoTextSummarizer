@@ -1,29 +1,37 @@
 from utils import remove_stopwords
 from spacy.attrs import ORTH
 
+
 class Segmenter:
-    def __init__(self, action_items):
-        self.action_items = action_items
+    def __init__(self, transcript_list):
+        self.transcript_list = transcript_list
+        self.temporal_segments = []
+        self.non_temporal_segments = []
         self.MIN_SIMILARITY = 0.7
 
     def run_segmenter(self):
-        sent_dicts = self.__generate_dict_list()
-        stopless_sentences = [sent['stopless_sentence'] for sent in sent_dicts]
-        # segment_indexes = self.__fetch_segment_indexes(stopless_sentences)
-        # self.__update_actionitems(segment_indexes)
-        segments = self.__find_related_sentences(stopless_sentences)
-        self.__update_action_items(sent_dicts, segments)
+        self.temporal_segments = self.__generate_dict_list()
+        self.non_temporal_segments = self.temporal_segments
+        stopless_sentences = [sent['stopless_sentence'] for sent in self.temporal_segments]
 
-    def get_action_items(self):
-        return self.action_items
+        segment_indexes = self.__fetch_segment_indexes(stopless_sentences)
+        self.__update_temporal_segments(segment_indexes)
+
+        segments = self.__find_related_sentences(stopless_sentences)
+        self.__update_non_temporal_segments(segments)
+
+    def get_temporal_segments(self):
+        return self.temporal_segments
+
+    def get_non_temporal_segments(self):
+        return self.non_temporal_segments
 
     def __generate_dict_list(self):
-        sent_dict = []
-        for dict in self.action_items:
-            sentence = dict['sentence']
+        sent_dict_list = []
+        for sentence in self.transcript_list:
             stopless_sentence = remove_stopwords(sentence)
-            sent_dict.append({'original_sentence': sentence, 'stopless_sentence': stopless_sentence})
-        return sent_dict
+            sent_dict_list.append({'original_sentence': sentence, 'stopless_sentence': stopless_sentence})
+        return sent_dict_list
 
     def __find_related_sentences(self, stopless_sentences):
         """
@@ -72,36 +80,27 @@ class Segmenter:
 
         return segment_indexes
 
-    def __update_actionitems(self, segment_indexes):
+    def __update_temporal_segments(self, segment_indexes):
         """
         Adds a new key to the action items dictionary: the segment number.
         :param segment_indexes: The indexes of the action items list to change segment numbers
         """
         segment_counter = 1
         sentence_counter = 0
-        new_action_items = []
-        for item in self.action_items:
+        for item in self.temporal_segments:
             item.update({'segment': segment_counter})
             sentence_counter += 1
             if sentence_counter in segment_indexes:
                 segment_counter += 1
-            new_action_items.append(item)
 
-        self.action_items = new_action_items
+        for item in self.temporal_segments:
+            del item['stopless_sentence']
 
-    def __update_action_items(self, sent_dicts, segments):
+    def __update_non_temporal_segments(self, segments):
         for index in range(len(segments)):
             for sentence in segments[index]:
-                needed_sent = next(item for item in sent_dicts
-                                   if item["stopless_sentence"] == sentence)['original_sentence']
-                next(item for item in self.action_items if item['sentence'] == needed_sent)\
+                next(item for item in self.non_temporal_segments if item["stopless_sentence"] == sentence)\
                     .update({'segment': index})
 
-'''
-what we need to do here is iterate over every sentence in the transcript
-but first we need to filter out all the action items and we should segment the action items
-
-'''
-
-
-
+        for item in self.non_temporal_segments:
+            del item['stopless_sentence']
