@@ -48,7 +48,6 @@ def fix_text(text_list, is_saved):
         return fixed_text_list
 
 
-
 # remove all tokens with the given part of speech from a doc object
 # @returns A Doc object
 def remove_tokens_by_pos(doc, pos):
@@ -81,8 +80,9 @@ def remove_stopwords(sentence):
 
 def filter_sentences(sent_dict_list):
     min_tokens = 10
+    new_list = []
     for sent_dict in sent_dict_list:
         sentence = sent_dict['original_sentence']
-        if len(sentence) < min_tokens or count_ents(sentence) == 0:
-            sent_dict_list.remove(sent_dict)
-    return sent_dict_list
+        if len(sentence) >= min_tokens and count_ents(sentence) != 0:
+            new_list.append(sent_dict)
+    return new_list
