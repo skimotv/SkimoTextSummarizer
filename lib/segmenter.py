@@ -93,14 +93,8 @@ class Segmenter:
             if sentence_counter in segment_indexes:
                 segment_counter += 1
 
-        for item in self.temporal_segments:
-            del item['stopless_sentence']
-
     def __update_non_temporal_segments(self, segments):
         for index in range(len(segments)):
             for sentence in segments[index]:
-                next(item for item in self.non_temporal_segments if item["stopless_sentence"] == sentence)\
+                next(item for item in self.non_temporal_segments if item['stopless_sentence'] == sentence)\
                     .update({'segment': index})
-
-        for item in self.non_temporal_segments:
-            del item['stopless_sentence']

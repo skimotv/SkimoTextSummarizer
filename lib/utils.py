@@ -5,39 +5,48 @@ from punctuator import Punctuator
 import re
 
 nlp = spacy.load('en_core_web_lg')
-neuralcoref.add_to_pipe(nlp)
 
 
-def fix_text(text_list):
+def fix_text(text_list, is_saved):
     """
     Cleans, punctuates, neural coreferences, and sentencizes the transcript.
     :param text_list: A list of strings; an 'unclean' transcript
     :return: A list of tokenized sentences (every sentence is a Doc object)
     """
-    fixed_text = ' '.join(text_list)  # convert the list into one string
-    fixed_text.replace('  ', ' ')  # remove double spaces
+    file_name = 'fixed.txt'
 
-    print('adding punctuation; please wait a few minutes...')
-    punctuator = Punctuator('Demo-Europarl-EN.pcl')
-    fixed_text = punctuator.punctuate(fixed_text)
-    print('punctuation has been added.')
+    if is_saved:
+        with open(file_name, 'r') as fixed:
+            fixed_text_list = fixed.readlines()
+        fixed_text_list = [text.replace('\n', '') for text in fixed_text_list]
+        fixed_text_list = [nlp(sentence) for sentence in fixed_text_list]
+        return fixed_text_list
 
-    # with open('fixed.txt', 'w') as fix:
-    #     fix.write(fixed_text)
+    else:
+        fixed_text = ' '.join(text_list)  # convert the list into one string
+        fixed_text.replace('  ', ' ')  # remove double spaces
 
-    print('removing interjections; please wait a few more minutes...')
-    fixed_text_doc = remove_tokens_by_pos(nlp(fixed_text), 'INTJ')
+        print('adding punctuation; please wait a few minutes...')
+        punctuator = Punctuator('Demo-Europarl-EN.pcl')
+        fixed_text = punctuator.punctuate(fixed_text)
+        print('punctuation has been added.')
 
-    print('performing neural coreferencing; please wait for several more minutes...')
-    fixed_text_doc = fixed_text_doc._.coref_resolved
+        print('removing interjections; please wait a few more minutes...')
+        fixed_text_doc = remove_tokens_by_pos(nlp(fixed_text), 'INTJ')
 
-    print('splitting the text into sentences; please keep waiting...')
-    fixed_text_list = re.split('\\.|\\?|!', fixed_text_doc)
-    # segmenter = DeepSegment('en')
-    # fixed_text_list = segmenter.segment(fixed_text_doc)
-    fixed_text_list = [nlp(sentence) for sentence in fixed_text_list]
+        print('performing neural coreferencing; please wait for several more minutes...')
+        neuralcoref.add_to_pipe(nlp)
+        fixed_text_doc = fixed_text_doc._.coref_resolved
 
-    return fixed_text_list
+        print('splitting the text into sentences; please keep waiting...')
+        fixed_text_list = re.split('\\.|\\?|!', fixed_text_doc)
+
+        with open(file_name, 'w') as fixed:
+            for sentence in fixed_text_list:
+                fixed.write(sentence + "\n")
+        fixed_text_list = [nlp(sentence) for sentence in fixed_text_list]
+        return fixed_text_list
+
 
 
 # remove all tokens with the given part of speech from a doc object
