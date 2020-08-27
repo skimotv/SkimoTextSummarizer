@@ -86,3 +86,21 @@ def filter_sentences(sent_dict_list):
         if len(sentence) >= min_tokens and count_ents(sentence) != 0:
             new_list.append(sent_dict)
     return new_list
+
+
+def stringify_segments(sent_dict_list):
+    max_segment = max(item['segment'] for item in sent_dict_list)
+    segments = []
+    for counter in range(max_segment + 1):
+        segment = stringify_segment(sent_dict_list, counter)
+        if len(segment) != 0:
+            segments.append(segment)
+    return segments
+
+
+def stringify_segment(sent_dict_list, segment):
+    sentence_list = [item['original_sentence'].text for item in sent_dict_list if item['segment'] == segment]
+    stringified_segment = '. '.join(sentence_list)
+    stringified_segment.replace('  ', ' ')
+    return stringified_segment
+

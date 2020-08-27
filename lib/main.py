@@ -1,6 +1,6 @@
 from detector import Detector
 from segmenter import Segmenter
-from utils import fix_text, filter_sentences
+from utils import fix_text, filter_sentences, stringify_segments
 from operator import itemgetter
 
 print('this program exists')
@@ -26,9 +26,16 @@ print('segmenter has segmented')
 
 temporal_segments = filter_sentences(temporal_segments)
 non_temporal_segments = filter_sentences(non_temporal_segments)
+non_temporal_segments = sorted(non_temporal_segments, key=itemgetter('segment'))
 
-for segment in temporal_segments:
+segments = stringify_segments(non_temporal_segments)
+
+for segment in segments:
     print(segment)
+
+print('')
+print('')
+print('')
 
 for segment in non_temporal_segments:
     print(segment)
