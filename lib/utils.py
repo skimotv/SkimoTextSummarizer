@@ -1,7 +1,6 @@
 import spacy
 import neuralcoref
 from punctuator import Punctuator
-# from deepsegment import DeepSegment
 import re
 
 nlp = spacy.load('en_core_web_lg')
@@ -10,6 +9,7 @@ nlp = spacy.load('en_core_web_lg')
 def fix_text(text_list, is_saved):
     """
     Cleans, punctuates, neural coreferences, and sentencizes the transcript.
+    :param is_saved: True if a version of the fixed text is already saved in a file
     :param text_list: A list of strings; an 'unclean' transcript
     :return: A list of tokenized sentences (every sentence is a Doc object)
     """
@@ -81,8 +81,6 @@ def remove_stopwords(sentence):
 
 def filter_sentences(sent_dict_list):
     min_tokens = 10
-    sent_dict_list = [sentence for sentence in sent_dict_list
-                      if len(sentence) > min_tokens and count_ents(sentence) != 0]
     for sent_dict in sent_dict_list:
         sentence = sent_dict['original_sentence']
         if len(sentence) < min_tokens or count_ents(sentence) == 0:
