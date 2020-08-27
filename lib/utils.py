@@ -88,19 +88,18 @@ def filter_sentences(sent_dict_list):
     return new_list
 
 
-def stringify_segments(sent_dict_list):
-    max_segment = max(item['segment'] for item in sent_dict_list)
+def stringify_segments(sent_dict_list, segment_type):
+    max_segment = max(item[segment_type] for item in sent_dict_list)
     segments = []
     for counter in range(max_segment + 1):
-        segment = stringify_segment(sent_dict_list, counter)
+        segment = stringify_segment(sent_dict_list, counter, segment_type)
         if len(segment) != 0:
             segments.append(segment)
     return segments
 
 
-def stringify_segment(sent_dict_list, segment):
-    sentence_list = [item['original_sentence'].text for item in sent_dict_list if item['segment'] == segment]
+def stringify_segment(sent_dict_list, segment, segment_type):
+    sentence_list = [item['original_sentence'].text for item in sent_dict_list if item[segment_type] == segment]
     stringified_segment = '. '.join(sentence_list)
     stringified_segment.replace('  ', ' ')
     return stringified_segment
-

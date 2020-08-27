@@ -19,26 +19,19 @@ print('text has been fixed')
 
 segment = Segmenter(transcript_list)
 segment.run_segmenter()
-temporal_segments = segment.get_temporal_segments()
-non_temporal_segments = segment.get_non_temporal_segments()
+segmented_dict = segment.get_segments()
 
 print('segmenter has segmented')
 
-temporal_segments = filter_sentences(temporal_segments)
-non_temporal_segments = filter_sentences(non_temporal_segments)
-non_temporal_segments = sorted(non_temporal_segments, key=itemgetter('segment'))
+# 'segment' is non-temporal, 'temporal_segment' is temporal
 
-segments = stringify_segments(non_temporal_segments)
+segmented_dict = filter_sentences(segmented_dict)
+non_temporal_sort = sorted(segmented_dict, key=itemgetter('non_temporal_segment'))
 
-for segment in segments:
-    print(segment)
+stringified = stringify_segments(segmented_dict, segment_type='non_temporal_segment')
 
-print('')
-print('')
-print('')
-
-for segment in non_temporal_segments:
-    print(segment)
+for item in segmented_dict:
+    print(item)
 
 # detect = Detector(verbs, transcript_list)
 # detect.run_detector()

@@ -5,14 +5,12 @@ from spacy.attrs import ORTH
 class Segmenter:
     def __init__(self, transcript_list):
         self.transcript_list = transcript_list
-        self.temporal_segments = []
-        self.non_temporal_segments = []
+        self.segments = []
         self.MIN_SIMILARITY = 0.7
 
     def run_segmenter(self):
-        self.temporal_segments = self.__generate_dict_list()
-        self.non_temporal_segments = self.temporal_segments
-        stopless_sentences = [sent['stopless_sentence'] for sent in self.temporal_segments]
+        self.segments = self.__generate_dict_list()
+        stopless_sentences = [sent['stopless_sentence'] for sent in self.segments]
 
         segment_indexes = self.__fetch_segment_indexes(stopless_sentences)
         self.__update_temporal_segments(segment_indexes)
@@ -20,11 +18,8 @@ class Segmenter:
         segments = self.__find_related_sentences(stopless_sentences)
         self.__update_non_temporal_segments(segments)
 
-    def get_temporal_segments(self):
-        return self.temporal_segments
-
-    def get_non_temporal_segments(self):
-        return self.non_temporal_segments
+    def get_segments(self):
+        return self.segments
 
     def __generate_dict_list(self):
         sent_dict_list = []
@@ -82,13 +77,13 @@ class Segmenter:
 
     def __update_temporal_segments(self, segment_indexes):
         """
-        Adds a new key to the action items dictionary: the segment number.
+        Adds a new key to the temporal segments dictionary: the segment number.
         :param segment_indexes: The indexes of the action items list to change segment numbers
         """
-        segment_counter = 1
+        segment_counter = 0
         sentence_counter = 0
-        for item in self.temporal_segments:
-            item.update({'segment': segment_counter})
+        for item in self.segments:
+            item.update({'temporal_segment': segment_counter})
             sentence_counter += 1
             if sentence_counter in segment_indexes:
                 segment_counter += 1
@@ -96,5 +91,5 @@ class Segmenter:
     def __update_non_temporal_segments(self, segments):
         for index in range(len(segments)):
             for sentence in segments[index]:
-                next(item for item in self.non_temporal_segments if item['stopless_sentence'] == sentence)\
-                    .update({'segment': index})
+                next(item for item in self.segments if item['stopless_sentence'] == sentence)\
+                    .update({'non_temporal_segment': index})
