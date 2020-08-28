@@ -29,7 +29,6 @@ def fix_text(text_list, is_saved):
         print('adding punctuation; please wait a few minutes...')
         punctuator = Punctuator('Demo-Europarl-EN.pcl')
         fixed_text = punctuator.punctuate(fixed_text)
-        print('punctuation has been added.')
 
         print('removing interjections; please wait a few more minutes...')
         fixed_text_doc = remove_tokens_by_pos(nlp(fixed_text), 'INTJ')
@@ -48,9 +47,14 @@ def fix_text(text_list, is_saved):
         return fixed_text_list
 
 
-# remove all tokens with the given part of speech from a doc object
-# @returns A Doc object
 def remove_tokens_by_pos(doc, pos):
+    """
+    NOTE: Can be made more efficient if Doc slicing is used
+    Removes all tokens with the given Part of Speech (POS) from a Doc object.
+    :param doc: The Doc object from which to remove tokens.
+    :param pos: The POS for which to look.
+    :return: A Doc object without the given Part of Speech
+    """
     new_text = ''
     for token in doc:
         # this changes "model um, I understand" to "model, I understand" instead of "model , I understand"
@@ -63,14 +67,23 @@ def remove_tokens_by_pos(doc, pos):
     return nlp(new_text)
 
 
-# counts the number of named entities in a doc/span object
-def count_ents(phrase_span):
-    named_entities = list(phrase_span.ents)
+def count_ents(phrase):
+    """
+    Counts the number of Named Entities in a spaCy Doc/Span object.
+    :param phrase: the Doc/Span object from which to remove Named Entities.
+    :return: The number of Named Entities identified in the input object.
+    """
+    named_entities = list(phrase.ents)
     return len(named_entities)
 
 
-# returns a span/doc object with its stop words removed
 def remove_stopwords(sentence):
+    """
+    Removes the stop words (the most commonly used words in a language, such as 'the', 'hello', etc.) from
+    the input sentence.
+    :param sentence: The sentence from which to remove stop words.
+    :return: The sentence minus the stop words.
+    """
     stopless_sent = ''
     for token in sentence:
         if not token.is_stop:
@@ -79,27 +92,36 @@ def remove_stopwords(sentence):
 
 
 def filter_sentences(sent_dict_list):
+    """
+    Filters sentences (in dict objects) that do not meet the following conditions:
+        1. Have more than a given threshold of tokens
+        2. Have at least one Named Entity
+    :param sent_dict_list: The dictionary list to filter
+    :return: The dictionary list without the unneeded sentences
+    """
     min_tokens = 10
-    new_list = []
+    filtered_sents = []
     for sent_dict in sent_dict_list:
         sentence = sent_dict['original_sentence']
         if len(sentence) >= min_tokens and count_ents(sentence) != 0:
-            new_list.append(sent_dict)
-    return new_list
+            filtered_sents.append(sent_dict)
+    return filtered_sents
 
 
 def stringify_segments(sent_dict_list, segment_type):
+    """
+    Converts a list of sentences (Doc objects) into strings based on their segment number, to pass to a model.
+    :param sent_dict_list: The dictionary list containing the list of sentences.
+    :param segment_type: The type of segment to convert (temporal_segment or non_temporal_segment)
+    :return: A list of strings: one string per segment.
+    """
     max_segment = max(item[segment_type] for item in sent_dict_list)
     segments = []
     for counter in range(max_segment + 1):
-        segment = stringify_segment(sent_dict_list, counter, segment_type)
+        sentence_list = [item['original_sentence'].text for item in sent_dict_list
+                         if item[segment_type] == counter]
+        segment = '. '.join(sentence_list)
+        segment.replace('  ', ' ')
         if len(segment) != 0:
             segments.append(segment)
     return segments
-
-
-def stringify_segment(sent_dict_list, segment, segment_type):
-    sentence_list = [item['original_sentence'].text for item in sent_dict_list if item[segment_type] == segment]
-    stringified_segment = '. '.join(sentence_list)
-    stringified_segment.replace('  ', ' ')
-    return stringified_segment

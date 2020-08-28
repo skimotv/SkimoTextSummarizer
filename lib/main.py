@@ -11,7 +11,6 @@ TRANSCRIPT_LOC = WORKING_DIR + 'data/boe_transcript.txt'
 
 transcript_list = open(TRANSCRIPT_LOC, 'r').readlines()
 transcript_list = fix_text(transcript_list, True)
-
 print('text has been fixed')
 
 # verbs = open(VERBS_LOC, 'r').readlines()
@@ -20,10 +19,7 @@ print('text has been fixed')
 segment = Segmenter(transcript_list)
 segment.run_segmenter()
 segmented_dict = segment.get_segments()
-
 print('segmenter has segmented')
-
-# 'segment' is non-temporal, 'temporal_segment' is temporal
 
 segmented_dict = filter_sentences(segmented_dict)
 non_temporal_sort = sorted(segmented_dict, key=itemgetter('non_temporal_segment'))
@@ -36,5 +32,4 @@ for item in segmented_dict:
 # detect = Detector(verbs, transcript_list)
 # detect.run_detector()
 # action_items = detect.get_action_items()
-#
 # print('detector has detected')

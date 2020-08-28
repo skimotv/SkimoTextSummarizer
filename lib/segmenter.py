@@ -9,6 +9,9 @@ class Segmenter:
         self.MIN_SIMILARITY = 0.7
 
     def run_segmenter(self):
+        """
+        Driver function for the class. It calls all the other functions in order.
+        """
         self.segments = self.__generate_dict_list()
         stopless_sentences = [sent['stopless_sentence'] for sent in self.segments]
 
@@ -22,6 +25,11 @@ class Segmenter:
         return self.segments
 
     def __generate_dict_list(self):
+        """
+        Generates a list of dictionaries; each dict maps a sentence in the transcript
+        to the sentence minus its stop words.
+        :return: The generated dictionary list.
+        """
         sent_dict_list = []
         for sentence in self.transcript_list:
             stopless_sentence = remove_stopwords(sentence)
@@ -77,7 +85,7 @@ class Segmenter:
 
     def __update_temporal_segments(self, segment_indexes):
         """
-        Adds a new key to the temporal segments dictionary: the segment number.
+        Adds a new key to the segments dictionary: the temporal segment number.
         :param segment_indexes: The indexes of the action items list to change segment numbers
         """
         segment_counter = 0
@@ -89,6 +97,10 @@ class Segmenter:
                 segment_counter += 1
 
     def __update_non_temporal_segments(self, segments):
+        """
+        Adds a new key to the segments dictionary: the non-temporal segment number.
+        :param segments: The transcript, organised into segments.
+        """
         for index in range(len(segments)):
             for sentence in segments[index]:
                 next(item for item in self.segments if item['stopless_sentence'] == sentence)\

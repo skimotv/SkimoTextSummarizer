@@ -10,8 +10,6 @@ class Detector:
         self.action_verbs = verbs
 
     def run_detector(self):
-        # bottom_half = transcript[len(transcript) / 2:].split(' ', 1)[1]
-
         self.__detect_action_items()
 
     def get_action_items(self):
