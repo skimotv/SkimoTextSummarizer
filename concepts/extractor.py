@@ -1,10 +1,11 @@
-
 from collections import OrderedDict
 import numpy as np
 import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 
 nlp = spacy.load('en_core_web_sm')
+
+# This file contains functions to extract keywords from a text using the page rank algorithm
 
 class TextRank4Keyword():
     """Extract keywords from text"""
@@ -133,15 +134,3 @@ class TextRank4Keyword():
             node_weight[word] = pr[index]
         
         self.node_weight = node_weight
-
-
-text = '''
-For the first time since the coronavirus pandemic hit Cuba, Havana residents will be subjected to a nightly curfew and not be allowed to travel to other provinces in the country, Havana Governor Reinaldo Garcia Zapata announced Thursday.
-Cuba’s ruling Communist Party has struggled to control a second wave of Covid-19 in Havana, just weeks after declaring the country was closing in on the tail end of the pandemic.
-The curfew from 7 p.m. until 5 a.m. will begin on September 1 and last for at least 15 days, Zapata said.
-Zapata said penalties for people not wearing a mask would be increased and the consumption of alcohol in public would be banned.
-Cuba, with a population of 11 million, has so far registered 3,806 coronavirus cases and 92 deaths, according to Johns Hopkins University data.'''
-
-tr4w = TextRank4Keyword()
-tr4w.analyze(text, candidate_pos = ['NOUN', 'PROPN'], window_size=4, lower=False)
-tr4w.get_keywords(10)
