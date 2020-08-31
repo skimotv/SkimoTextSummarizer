@@ -24,6 +24,9 @@ class Segmenter:
     def get_segments(self):
         return self.segments
 
+    def renumber_segments(self, dict_list):
+        pass
+
     def __generate_dict_list(self):
         """
         Generates a list of dictionaries; each dict maps a sentence in the transcript
