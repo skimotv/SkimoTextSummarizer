@@ -1,16 +1,18 @@
 from spacy.tokens import Span, Doc
-from utils import count_ents
+from lib.utils import count_ents
 
 
 class Detector:
     def __init__(self, verbs, transcript_list):
-        self.MIN_WORDS = 10
         self.action_items = []
         self.sents_with_dates = []
         self.transcript_list = transcript_list
         self.action_verbs = verbs
 
     def run_detector(self):
+        """
+        Driver function for the Detector. Populates the Action Items list and the Dates list with relevant info.
+        """
         self.__detect_action_items()
         self.__detect_dates()
 
@@ -21,13 +23,17 @@ class Detector:
         return self.sents_with_dates
 
     def __detect_action_items(self):
+        """
+        Identifies action verbs (from a given list of verbs) in a transcript (a list of sentences) and filters out
+        sentences that do not contain an action verb.
+        """
         acceptable_verb_tags = ['VB', 'VBP', 'VBZ']
 
         filtered_tokens = ['?', 'thank']  # list will be expanded
         self.__set_filtered_tokens_ext(filtered_tokens)
 
         for sentence in self.transcript_list:
-            if len(sentence) < self.MIN_WORDS or sentence._.has_filtered_token:
+            if sentence._.has_filtered_token:
                 continue
 
             subtree_list = []
@@ -42,8 +48,11 @@ class Detector:
                 if flag is True and token.i == (len(sentence) - 1):
                     self.__generate_dict(token_list, subtree_list, sentence)
 
-    # create a custom extension using a lambda to filter out sentences with a particular token
     def __set_filtered_tokens_ext(self, filtered_tokens):
+        """
+        Creates a custom extension using a lambda to filter out sentences (Span/Doc objects) with a particular token
+        :param filtered_tokens: The list of tokens to filter out
+        """
         def token_getter(span):
             return any(token in span.text for token in filtered_tokens)
 
@@ -51,7 +60,13 @@ class Detector:
         Doc.set_extension("has_filtered_token", getter=token_getter)
 
     def __generate_dict(self, token_list, subtree_list, sentence):
-        ent_count = count_ents(sentence)
+        """
+        Generates a dictionary entry and appends to the action items list: one entry per relevant sentence.
+        :param token_list: the list of action verbs in the sentence
+        :param subtree_list: the list subtrees associated with the tokens
+        :param sentence: the sentence containing the action verbs
+        """
+        ent_count = count_ents(sentence)  # the number of named entities in the sentence
         if ent_count != 0:
             self.action_items.append({'tokens': token_list,
                                       'subtrees': subtree_list,
@@ -59,6 +74,9 @@ class Detector:
                                       'ent_count': ent_count})
 
     def __detect_dates(self):
+        """
+        Detects the sentences with dates/times in the transcript and appends them to the sents with dates list.
+        """
         for sentence in self.transcript_list:
             sentence_ents = list(sentence.ents)
             for ent in sentence_ents:

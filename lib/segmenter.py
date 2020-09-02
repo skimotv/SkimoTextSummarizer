@@ -10,7 +10,8 @@ class Segmenter:
 
     def run_segmenter(self):
         """
-        Driver function for the class. It calls all the other functions in order.
+        Driver function for the class. It generates a dictionary list and updates it with a temporal segment number
+        and a non-temporal segment number.
         """
         self.segments = self.__generate_dict_list()
         stopless_sentences = [sent['stopless_sentence'] for sent in self.segments]

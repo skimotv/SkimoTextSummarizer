@@ -121,7 +121,7 @@ def stringify_segments(sent_dict_list, segment_type):
         sentence_list = [item['original_sentence'].text for item in sent_dict_list
                          if item[segment_type] == counter]
         segment = '. '.join(sentence_list)
-        segment.replace('  ', ' ')
+        re.sub('\\s\\s+?', ' ', segment)
         if len(segment) != 0:
             segments.append(segment)
     return segments
