@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectPlainTextFileTypeManager">
     <file url="file://$PROJECT_DIR$/action_items/action_verbs.txt" />
+    <file url="file://$PROJECT_DIR$/action_items/boe_transcript.txt" />
     <file url="file://$PROJECT_DIR$/lib/data/boe_transcript.txt" />
     <file url="file://$PROJECT_DIR$/lib/data/transcipt.txt" />
     <file url="file://$PROJECT_DIR$/lib/fixed.txt" />

@@ -1,5 +1,6 @@
 from utils import remove_stopwords
 from spacy.attrs import ORTH
+from operator import itemgetter
 
 
 class Segmenter:
@@ -10,8 +11,7 @@ class Segmenter:
 
     def run_segmenter(self):
         """
-        Driver function for the class. It generates a dictionary list and updates it with a temporal segment number
-        and a non-temporal segment number.
+        Driver function for the class. It calls all the other functions in order.
         """
         self.segments = self.__generate_dict_list()
         stopless_sentences = [sent['stopless_sentence'] for sent in self.segments]
@@ -22,11 +22,43 @@ class Segmenter:
         segments = self.__find_related_sentences(stopless_sentences)
         self.__update_non_temporal_segments(segments)
 
+        for segment in self.segments:
+            del segment['stopless_sentence']
+
     def get_segments(self):
         return self.segments
 
-    def renumber_segments(self, dict_list):
-        pass
+    def renumber_segments(self, segment_type, dict_list):
+        """
+        Renumbers the segments (in case any dict items have been filtered out and the numbers aren't incrementing
+        sequentially anymore). Then assigns the renumbered list to self.segments.
+        :param segment_type: The type of segment: temporal, or non_temporal
+        :param dict_list: [optional] the dict list to renumber; if None, will use self.segments
+        :return: the renumbered dict list
+        """
+        if dict_list is None:
+            dict_list = self.segments
+
+        if segment_type == 'non_temporal_segment':
+            dict_list = sorted(dict_list, key=itemgetter('non_temporal_segment'))
+        elif segment_type != 'temporal_segment':
+            return None
+
+        previous_entry_segment = dict_list[0][segment_type]
+        segment_counter = 0
+        for item in dict_list:
+            if item[segment_type] == previous_entry_segment:
+                previous_entry_segment = item[segment_type]
+                item.update({segment_type: segment_counter})
+            else:
+                previous_entry_segment = item[segment_type]
+                segment_counter += 1
+                item.update({segment_type: segment_counter})
+
+        dict_list = sorted(dict_list, key=itemgetter('temporal_segment'))
+        self.segments = dict_list
+        return dict_list
+
 
     def __generate_dict_list(self):
         """

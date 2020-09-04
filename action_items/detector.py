@@ -1,5 +1,5 @@
 from spacy.tokens import Span, Doc
-from lib.utils import count_ents
+from lib.utils import count_ents, fix_text
 
 
 class Detector:
@@ -83,3 +83,23 @@ class Detector:
                 if ent.label_ == 'DATE' or ent.label_ == 'TIME':
                     self.sents_with_dates.append(sentence)
 
+# -------------------------------------------------------------------------------------------------------------------- #
+
+WORKING_DIR = 'Enter your working directory here'
+VERBS_LOC = WORKING_DIR + 'action_verbs.txt'
+TRANSCRIPT_LOC = WORKING_DIR + 'boe_transcript.txt'
+
+transcript_list = open(TRANSCRIPT_LOC, 'r').readlines()
+transcript_list = fix_text(transcript_list, True)
+print('text has been fixed')
+
+verbs = open(VERBS_LOC, 'r').readlines()
+verbs = [verb.lower().replace('\n', '') for verb in verbs]  # cleans list
+
+detect = Detector(verbs, transcript_list)
+detect.run_detector()
+action_items = detect.get_action_items()
+print('detector has detected')
+
+for item in action_items:
+    print(item)
