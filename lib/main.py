@@ -1,5 +1,5 @@
-from segmenter import Segmenter
-from utils import fix_text, filter_sentences, stringify_segments
+from lib.segmenter import Segmenter
+from lib.utils import fix_text, filter_sentences, stringify_segments
 from operator import itemgetter
 
 print('this program exists')

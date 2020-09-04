@@ -1,4 +1,4 @@
-from utils import remove_stopwords
+from lib.utils import remove_stopwords
 from spacy.attrs import ORTH
 from operator import itemgetter
 
@@ -58,7 +58,6 @@ class Segmenter:
         dict_list = sorted(dict_list, key=itemgetter('temporal_segment'))
         self.segments = dict_list
         return dict_list
-
 
     def __generate_dict_list(self):
         """
