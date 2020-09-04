@@ -26,7 +26,14 @@ def summarize(text, m):
     # Download tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(models[m])
     model = AutoModelWithLMHead.from_pretrained(models[m])
-    
+
+    inputs = tokenizer.encode(text, add_special_tokens=False, return_tensors="pt")
+    outputs = model.generate(inputs, max_length=250, do_sample=True, top_p=0.95, top_k=60)
+    generated = tokenizer.decode(outputs[0])
+
+    return generated
+
+    '''
     # generate lists to be summarized
     chunks = breaktext(text)
     text_out = ''
@@ -39,3 +46,4 @@ def summarize(text, m):
         text_out = text + c
 
     return text_out
+    '''
